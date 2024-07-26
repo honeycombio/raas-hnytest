@@ -47,5 +47,9 @@ jobs:
           command: |
             helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
             helm repo update
-            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-kubeletstats open-telemetry/opentelemetry-collector -f kubeletstats-values.yaml --wait --debug
-            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-k8sevents open-telemetry/opentelemetry-collector -f k8sevents-values.yaml --wait --debug
+            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-kubeletstats open-telemetry/opentelemetry-collector -f kubeletstats-values.yaml \
+            --set config.exporters.otlp.endpoint="api.eu1.honeycomb.io:443" \
+            --wait --debug
+            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-k8sevents open-telemetry/opentelemetry-collector -f k8sevents-values.yaml \
+            --set config.exporters.otlp.endpoint="api.eu1.honeycomb.io:443" \
+            --wait --debug
