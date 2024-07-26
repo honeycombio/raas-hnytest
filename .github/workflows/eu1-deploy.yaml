@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - eu1-values.yaml
+      - refinery-values.yaml
 
 env:
   AWS_REGION: eu-west-1
@@ -54,4 +54,5 @@ jobs:
             --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets.EU1_ACM_ARN }}" \
             --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ secrets.EU1_DNS_NAME }}" \
             --set grpcIngress.hosts[0].host="${{ secrets.EU1_DNS_NAME }}" \
+            --set config.Network.HoneycombAPI="https://api.eu1.honeycomb.io" \
             --wait --debug
