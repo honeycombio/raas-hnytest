@@ -1,6 +1,12 @@
 # Honeycomb Refinery Cluster
 
-This repository is for deploying and managing Refinery on a Kubernetes cluster, as well as some additional monitoring functions for monitoring the use of Kubernetes resources as well as monitoring your Refinery cluster in Honeycomb via the metrics sent to Honeycomb by Refinery.
+This repository has terraform and helm configurations to:
+
+1. Configure a Refinery cluster
+1. Install the Refinery 
+1. Install opentelemetry collectors into the cluster to observe health and performance
+1. Use terraform to configure triggers in Honeycomb
+1. The GitHub actions to handle deployment and reconfiguration
 
 For more information about Refinery, please check out the docs on the Honeycomb website:
 [Honeycomb Refinery Docs](https://docs.honeycomb.io/manage-data-volume/refinery/)
