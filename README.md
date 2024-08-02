@@ -1,6 +1,6 @@
 # Honeycomb Refinery Cluster
 
-This repository has terraform and helm configurations to:
+This repository demonstrates best practices for using Helm to deploy Refinery, and Terraform to manage Honeycomb objects.
 
 1. Configure a Refinery cluster
 1. Install the Refinery 
