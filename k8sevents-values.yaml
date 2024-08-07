@@ -1,6 +1,10 @@
 # This is an OTel Collector Helm Chart Values File to focus on K8s Events for pods on a specific group of nodes
 
 mode: deployment
+
+nodeSelector:
+  customer: hnytest
+
 service:
   enabled: true
 
@@ -17,7 +21,7 @@ image:
 
 config:
   exporters:
-    otlp/hnytest:
+    otlp:
       endpoint: api.honeycomb.io:443
       headers:
         X-Honeycomb-Dataset: refinery-k8s-events
@@ -61,7 +65,7 @@ config:
       metrics: null
       logs:
         exporters:
-          - otlp/hnytest
+          - otlp
         processors:
           - transform/events
           - batch
@@ -90,6 +94,3 @@ extraEnvs:
       secretKeyRef:
         key: refinery-metrics-api-key
         name: raas-secrets
-
-nodeSelector:
-  customer: hnytest
