@@ -53,7 +53,11 @@ jobs:
             --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets.US1_ACM_ARN }}" \
             --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ secrets.US1_DNS_NAME }}" \
             --set ingress.hosts[0].host="${{ secrets.US1_DNS_NAME }}" \
+            --set ingress.hosts[1].host="${{ secrets.US1_DNS_NAME }}" \
+            --set ingress.hosts[2].host="${{ secrets.US1_DNS_NAME }}" \
             --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets.US1_ACM_ARN }}" \
             --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ secrets.US1_DNS_NAME }}" \
             --set grpcIngress.hosts[0].host="${{ secrets.US1_DNS_NAME }}" \
+            --set grpcIngress.hosts[1].host="${{ secrets.US1_DNS_NAME }}" \
+            --set grpcIngress.hosts[2].host="${{ secrets.US1_DNS_NAME }}" \
             --wait --debug
