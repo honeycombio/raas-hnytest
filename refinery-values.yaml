@@ -225,11 +225,7 @@ ingress:
     kubernetes.io/ingress.class: alb
   hosts:
     - host: _replaceme_
-      path: /1/
-    - host: _replaceme_
-      path: /v1/
-    - host: _replaceme_
-      path: /query/
+      path: /
   labels: {}
 
 grpcIngress:
@@ -255,9 +251,5 @@ grpcIngress:
     kubernetes.io/ingress.class: alb
   hosts:
     - host: _replaceme_
-      path: /1/
-    - host: _replaceme_
-      path: /v1/
-    - host: _replaceme_
-      path: /query/
+      path: /
   labels: {}
