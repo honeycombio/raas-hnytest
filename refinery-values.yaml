@@ -220,6 +220,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.drop_invalid_header_fields.enabled=true
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     external-dns.alpha.kubernetes.io/hostname: _replaceme_
     kubernetes.io/ingress.class: alb
@@ -246,6 +247,7 @@ grpcIngress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.drop_invalid_header_fields.enabled=true
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     external-dns.alpha.kubernetes.io/hostname: _replaceme_
     kubernetes.io/ingress.class: alb
