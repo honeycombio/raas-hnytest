@@ -18,6 +18,8 @@ permissions:
 
 jobs:
   refinery-deploy:
+    # don't run when creating the repo from this template
+    if: github.run_number != 1
     runs-on: ubuntu-latest
     permissions:
       contents: read
