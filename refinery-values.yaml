@@ -12,6 +12,7 @@ customvals:
   - &peerQueueSize 150_000
   - &upstreamBufferSize 50_000
   - &peerBufferSize 50_000
+  - &spanLimit 1_000
 # Sizing example for an r7g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
 # - &memory 120Gi
 # - &cpu 14
@@ -20,6 +21,7 @@ customvals:
 # - &peerQueueSize      3_000_000
 # - &upstreamBufferSize 1_000_000
 # - &peerBufferSize     1_000_000
+# - &spanLimit 32_000
 
 ###############################################################################
 ### Rules: How Refinery Processes Traces - See Link Below for More Info     ###
@@ -181,6 +183,7 @@ config:
   Traces:
     SendDelay: 10s
     TraceTimeout: 60s
+    SpanLimit: *spanLimit
 
 environment:
   - name: REFINERY_HONEYCOMB_API_KEY
