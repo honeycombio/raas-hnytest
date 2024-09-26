@@ -13,6 +13,8 @@ customvals:
   - &upstreamBufferSize 50_000
   - &peerBufferSize 50_000
   - &spanLimit 1_000
+  - &sendDelay 10s
+  - &traceTimeout 60s
 # Sizing example for an r7g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
 # - &memory 120Gi
 # - &cpu 14
@@ -181,8 +183,8 @@ config:
     DeactivationLevel: 50
     Mode: monitor
   Traces:
-    SendDelay: 10s
-    TraceTimeout: 60s
+    SendDelay: *sendDelay
+    TraceTimeout: *traceTimeout
     SpanLimit: *spanLimit
 
 environment:
