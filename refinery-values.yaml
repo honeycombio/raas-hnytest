@@ -151,7 +151,6 @@ config:
   Collection:
     AvailableMemory: *memory
     MaxMemoryPercentage: 75
-    CacheCapacity: *cacheCapacity
     IncomingQueueSize: *incomingQueueSize
     PeerQueueSize: *peerQueueSize
   BufferSizes:
