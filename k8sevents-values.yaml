@@ -26,7 +26,7 @@ presets:
 config:
   exporters:
     otlp:
-      endpoint: api.honeycomb.io:443
+      endpoint: ${env:HONEYCOMB_API_ENDPOINT}:443
       headers:
         X-Honeycomb-Dataset: refinery-k8s-events
         X-Honeycomb-Team: ${env:HONEYCOMB_API_KEY}
@@ -98,3 +98,5 @@ extraEnvs:
       secretKeyRef:
         key: refinery-metrics-api-key
         name: raas-secrets
+  - name: HONEYCOMB_API_ENDPOINT
+    value: ${HONEYCOMB_API_ENDPOINT}
