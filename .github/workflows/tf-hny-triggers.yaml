@@ -9,8 +9,8 @@ on:
       - "terraform/**.tf"
 
 env:
-  AWS_REGION: us-east-1
-  CLUSTER_NAME: raas-us1
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
   HONEYCOMB_API_KEY: ${{ secrets.HONEYCOMB_API_KEY }}
   KUBE_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
 
@@ -30,7 +30,7 @@ jobs:
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{secrets.AWS_GH_EKS_ROLE_US1}}
+          role-to-assume: ${{secrets.AWS_GH_EKS_ROLE}}
           role-session-name: ci-run-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
       - name: kubeconfig
