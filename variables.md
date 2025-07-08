@@ -14,6 +14,9 @@
 | `AWS_GH_EKS_ROLE`           |
 | `ACM_ARN`                   |
 | `DNS_NAME`                  |
+| `AWS_GH_EKS_ROLE_EU`        |
+| `ACM_ARN_EU`                |
+| `DNS_NAME_EU`               |
 | `HONEYCOMB_API_KEY`         |
 | `REFINERY_QUERY_AUTH_TOKEN` |
 | `TF_STATE_PASSHRASE`        |

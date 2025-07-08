@@ -29,10 +29,33 @@ jobs:
       - name: Clone the repository
         uses: actions/checkout@v4
 
+      - name: Validate and set secrets
+        run: |
+          if [[ "${{ env.AWS_REGION }}" == "eu-west-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE_EU }}" ]] || [[ -z "${{ secrets.ACM_ARN_EU }}" ]] || [[ -z "${{ secrets.DNS_NAME_EU }}" ]]; then
+              echo "Required EU secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE_EU }}" >> $GITHUB_ENV
+            echo "SELECTED_ACM_ARN=${{ secrets.ACM_ARN_EU }}" >> $GITHUB_ENV
+            echo "SELECTED_DNS_NAME=${{ secrets.DNS_NAME_EU }}" >> $GITHUB_ENV
+          elif [[ "${{ env.AWS_REGION }}" == "us-east-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE }}" ]] || [[ -z "${{ secrets.ACM_ARN }}" ]] || [[ -z "${{ secrets.DNS_NAME }}" ]]; then
+              echo "Required US secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE }}" >> $GITHUB_ENV
+            echo "SELECTED_ACM_ARN=${{ secrets.ACM_ARN }}" >> $GITHUB_ENV
+            echo "SELECTED_DNS_NAME=${{ secrets.DNS_NAME }}" >> $GITHUB_ENV
+          else
+            echo "Invalid AWS_REGION: ${{ env.AWS_REGION }}"
+            exit 1
+          fi
+
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{secrets.AWS_GH_EKS_ROLE}}
+          role-to-assume: ${{ env.SELECTED_EKS_ROLE }}
           role-session-name: ci-run-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -53,11 +76,11 @@ jobs:
             helm repo add honeycomb https://honeycombio.github.io/helm-charts
             helm repo update
             helm upgrade -n ${{vars.K8S_NAMESPACE}} --install refinery honeycomb/refinery -f refinery-values.yaml \
-            --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets.ACM_ARN }}" \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ secrets.DNS_NAME }}" \
-            --set ingress.hosts[0].host="${{ secrets.DNS_NAME }}" \
-            --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets.ACM_ARN }}" \
-            --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ secrets.DNS_NAME }}" \
-            --set grpcIngress.hosts[0].host="${{ secrets.DNS_NAME }}" \
+            --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
+            --set ingress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
+            --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
+            --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
+            --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
             --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
             --wait --debug
