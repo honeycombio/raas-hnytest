@@ -72,15 +72,26 @@ jobs:
           KUBE_CONFIG_DATA: ${{ env.KUBE_CONFIG_DATA }}
         with:
           command: |
-            kubectl create secret generic raas-secrets --from-literal=refinery-metrics-api-key=${{ secrets.REFINERY_HONEYCOMB_API_KEY }} --from-literal=refinery-query-auth-token=${{ secrets.REFINERY_QUERY_AUTH_TOKEN }} --dry-run=client -o yaml | kubectl -n ${{ vars.K8S_NAMESPACE }} apply -f -
+            kubectl create secret generic raas-secrets \
+              --from-literal=refinery-metrics-api-key=${{ secrets.REFINERY_HONEYCOMB_API_KEY }} \
+              --from-literal=refinery-query-auth-token=${{ secrets.REFINERY_QUERY_AUTH_TOKEN }} \
+              --dry-run=client \
+              -o yaml | kubectl -n ${{ vars.K8S_NAMESPACE }} apply -f -
+
             helm repo add honeycomb https://honeycombio.github.io/helm-charts
             helm repo update
-            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install refinery honeycomb/refinery -f refinery-values.yaml \
-            --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
-            --set ingress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
-            --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
-            --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
-            --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
-            --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
-            --wait --debug
+
+            helm upgrade \
+              -n ${{ vars.K8S_NAMESPACE }} \
+              --install refinery \
+              honeycomb/refinery \
+              -f refinery-values.yaml \
+              --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
+              --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
+              --set ingress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
+              --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
+              --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
+              --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
+              --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --wait \
+              --debug
