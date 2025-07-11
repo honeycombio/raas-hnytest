@@ -9,8 +9,8 @@ on:
       - "terraform/**.tf"
 
 env:
-  AWS_REGION: us-east-1
-  CLUSTER_NAME: raas-us1
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
   HONEYCOMB_API_KEY: ${{ secrets.HONEYCOMB_API_KEY }}
   KUBE_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
 
@@ -27,10 +27,28 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - name: Validate and set secrets
+        run: |
+          if [[ "${{ env.AWS_REGION }}" == "eu-west-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE_EU }}" ]] || [[ -z "${{ secrets.ACM_ARN_EU }}" ]] || [[ -z "${{ secrets.DNS_NAME_EU }}" ]]; then
+              echo "Required EU secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE_EU }}" >> $GITHUB_ENV
+          elif [[ "${{ env.AWS_REGION }}" == "us-east-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE }}" ]] || [[ -z "${{ secrets.ACM_ARN }}" ]] || [[ -z "${{ secrets.DNS_NAME }}" ]]; then
+              echo "Required US secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE }}" >> $GITHUB_ENV
+          else
+            echo "Invalid AWS_REGION: ${{ env.AWS_REGION }}"
+            exit 1
+          fi
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{secrets.AWS_GH_EKS_ROLE_US1}}
+          role-to-assume: ${{ env.SELECTED_EKS_ROLE }}
           role-session-name: ci-run-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
       - name: kubeconfig

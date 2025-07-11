@@ -10,8 +10,9 @@ on:
       - kubeletstats-values.yaml
 
 env:
-  AWS_REGION: us-east-1
-  CLUSTER_NAME: raas-us1
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+  HONEYCOMB_API_ENDPOINT: ${{ vars.HONEYCOMB_API_ENDPOINT }}
 permissions:
   id-token: write # This is required for requesting the JWT
 
@@ -27,10 +28,29 @@ jobs:
       - name: Clone the repository
         uses: actions/checkout@v4
 
+      - name: Validate and set secrets
+        run: |
+          if [[ "${{ env.AWS_REGION }}" == "eu-west-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE_EU }}" ]] || [[ -z "${{ secrets.ACM_ARN_EU }}" ]] || [[ -z "${{ secrets.DNS_NAME_EU }}" ]]; then
+              echo "Required EU secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE_EU }}" >> $GITHUB_ENV
+          elif [[ "${{ env.AWS_REGION }}" == "us-east-1" ]]; then
+            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE }}" ]] || [[ -z "${{ secrets.ACM_ARN }}" ]] || [[ -z "${{ secrets.DNS_NAME }}" ]]; then
+              echo "Required US secrets are not set"
+              exit 1
+            fi
+            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE }}" >> $GITHUB_ENV
+          else
+            echo "Invalid AWS_REGION: ${{ env.AWS_REGION }}"
+            exit 1
+          fi
+
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{secrets.AWS_GH_EKS_ROLE_US1}}
+          role-to-assume: ${{ env.SELECTED_EKS_ROLE }}
           role-session-name: ci-run-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -49,5 +69,21 @@ jobs:
           command: |
             helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
             helm repo update
-            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-kubeletstats open-telemetry/opentelemetry-collector -f kubeletstats-values.yaml --wait --debug
-            helm upgrade -n ${{vars.K8S_NAMESPACE}} --install ${{vars.K8S_NAMESPACE}}-otelcol-k8sevents open-telemetry/opentelemetry-collector -f k8sevents-values.yaml --wait --debug
+
+            helm upgrade \
+              -n ${{ vars.K8S_NAMESPACE }} \
+              --install ${{ vars.K8S_NAMESPACE }}-otelcol-kubeletstats \
+              open-telemetry/opentelemetry-collector \
+              -f kubeletstats-values.yaml \
+              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --wait \
+              --debug
+
+            helm upgrade \
+              -n ${{ vars.K8S_NAMESPACE }} \
+              --install ${{ vars.K8S_NAMESPACE }}-otelcol-k8sevents \
+              open-telemetry/opentelemetry-collector \
+              -f k8sevents-values.yaml \
+              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --wait \
+              --debug

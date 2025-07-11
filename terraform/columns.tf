@@ -18,7 +18,7 @@ resource "null_resource" "create_metrics_columns" {
     HONEYCOMB_DATASET="${var.refinery_metrics_dataset}"
 
     curl -s --retry 3 --retry-delay 5 --retry-max-time 30 \
-      $${HONEYCOMB_API_ENDPOINT}/1/events/$${HONEYCOMB_DATASET} \
+      https://$${HONEYCOMB_API_ENDPOINT}/1/events/$${HONEYCOMB_DATASET} \
       -X POST \
       -H "X-Honeycomb-Team: $${HONEYCOMB_API_KEY}" \
       -d '${jsonencode(local.metrics_columns)}'
