@@ -29,7 +29,7 @@ config:
       endpoint: ${env:HONEYCOMB_API_ENDPOINT}:443
       headers:
         X-Honeycomb-Dataset: refinery-kubeletstats
-        X-Honeycomb-Team: ${env:HONEYCOMB_API_KEY}
+        X-Honeycomb-Team: ${env:REFINERY_HONEYCOMB_API_KEY}
 
   receivers:
     jaeger: null
@@ -92,7 +92,7 @@ ports:
     enabled: true
 
 extraEnvs:
-  - name: HONEYCOMB_API_KEY
+  - name: REFINERY_HONEYCOMB_API_KEY
     valueFrom:
       secretKeyRef:
         key: refinery-metrics-api-key
