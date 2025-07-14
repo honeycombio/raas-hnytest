@@ -20,7 +20,7 @@ resource "null_resource" "create_metrics_columns" {
     curl -s --retry 3 --retry-delay 5 --retry-max-time 30 \
       https://$${HONEYCOMB_API_ENDPOINT}/1/events/$${HONEYCOMB_DATASET} \
       -X POST \
-      -H "X-Honeycomb-Team: $${HONEYCOMB_API_KEY}" \
+      -H "X-Honeycomb-Team: $${REFINERY_HONEYCOMB_API_KEY}" \
       -d '${jsonencode(local.metrics_columns)}'
 
       # sleep to allow Honeycomb to process the event and create columns
