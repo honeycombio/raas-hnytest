@@ -30,8 +30,9 @@ If looking for the values in the AWS console, please make sure to check the corr
 
 You may find these in your respective Honeycomb.io refinery-as-a-service team (US or EU).
 
-| Name                         | Where to Find Value                                                                                         |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `REFINERY_HONEYCOMB_API_KEY` | Your Honeycomb.io refinery-as-a-service team (US or EU). Must be a key with permissions to create triggers. |
-| `REFINERY_QUERY_AUTH_TOKEN`  | User determined value. `C0ntains.L1ve.B33s` is the default value.                                           |
-| `TF_STATE_PASSHRASE`         | User determined value.                                                                                      |
+| Name                         | Where to Find Value                                                                                            |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `REFINERY_HONEYCOMB_API_KEY` | Your Honeycomb.io refinery-as-a-service team (US or EU). Must be a key with permissions to create triggers.    |
+| `REFINERY_QUERY_AUTH_TOKEN`  | User determined value. `C0ntains.L1ve.B33s` is the default value.                                              |
+| `TF_STATE_PASSHRASE`         | User determined value.                                                                                         |
+| `SLACK_RECIPIENT_CHANNEL`    | `#collab-hosted-refinery-for-pocs` is the default value. This is the channel where notifications will be sent. |

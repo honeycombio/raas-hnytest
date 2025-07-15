@@ -14,6 +14,7 @@ env:
   HONEYCOMB_API_KEY: ${{ secrets.REFINERY_HONEYCOMB_API_KEY }}
   KUBE_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
   HONEYCOMB_API_ENDPOINT: ${{ vars.HONEYCOMB_API_ENDPOINT }}
+  TF_VAR_slack_recipient_channel: ${{ secrets.SLACK_RECIPIENT_CHANNEL }}
 
 jobs:
   terraform-download-apply-upload:
