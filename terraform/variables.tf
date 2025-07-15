@@ -15,5 +15,5 @@ variable "slack_recipient_channel" {
 
 variable "existing_slack_recipient_id" {
   type    = string
-  default = "oe3smxMT5xz"
+  default = "C050ZJGP2KW" # Default to the channel ID for #collab-hosted-refinery-for-pocs
 }
