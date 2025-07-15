@@ -11,14 +11,16 @@ locals {
   }
 }
 
+# default API endpoint is: https://api.honeycomb.io
+# EU endpoint is : https://api.eu1.honeycomb.io
 resource "null_resource" "create_metrics_columns" {
   provisioner "local-exec" {
     command = <<-EOT
 
     HONEYCOMB_DATASET="${var.refinery_metrics_dataset}"
 
-    curl -s --retry 3 --retry-delay 5 --retry-max-time 30 \
-      https://$${HONEYCOMB_API_ENDPOINT}/1/events/$${HONEYCOMB_DATASET} \
+    curl -s --retry 3 --retry-delay 5 --retry-max-time 30 \ 
+      $${HONEYCOMB_API_ENDPOINT}/1/events/$${HONEYCOMB_DATASET} \
       -X POST \
       -H "X-Honeycomb-Team: $${REFINERY_HONEYCOMB_API_KEY}" \
       -d '${jsonencode(local.metrics_columns)}'

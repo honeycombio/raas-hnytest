@@ -1,5 +1,5 @@
 provider "honeycombio" {
-  # expecting REFINERY_HONEYCOMB_API_KEY and HONEYCOMB_API_ENDPOINT to be set as environment variables
+  # expecting HONEYCOMB_API_KEY and HONEYCOMB_API_ENDPOINT to be set as environment variables
 }
 
 terraform {
