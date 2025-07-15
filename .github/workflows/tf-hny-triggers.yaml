@@ -13,6 +13,7 @@ env:
   CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
   HONEYCOMB_API_KEY: ${{ secrets.REFINERY_HONEYCOMB_API_KEY }}
   KUBE_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+  HONEYCOMB_API_ENDPOINT: ${{ vars.HONEYCOMB_API_ENDPOINT }}
 
 jobs:
   terraform-download-apply-upload:
