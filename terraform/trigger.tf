@@ -39,7 +39,7 @@ resource "honeycombio_trigger" "refinery_dropped_incoming_events" {
   query_id    = honeycombio_query.refinery_dropped_incoming_events_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -96,7 +96,7 @@ resource "honeycombio_trigger" "refinery_stress_relief_activated" {
   query_id    = honeycombio_query.refinery_stress_relief_activated_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -153,7 +153,7 @@ resource "honeycombio_trigger" "refinery_dropped_peer_events" {
   query_id    = honeycombio_query.refinery_dropped_peer_events_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -205,7 +205,7 @@ resource "honeycombio_trigger" "refinery_cache_buffer_overrun" {
   query_id    = honeycombio_query.refinery_cache_buffer_overrun_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -256,7 +256,7 @@ resource "honeycombio_trigger" "refinery_peer_queue_buffer_overflow" {
   query_id    = honeycombio_query.refinery_peer_queue_buffer_overflow_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -307,7 +307,7 @@ resource "honeycombio_trigger" "refinery_upstream_queue_overflow" {
   query_id    = honeycombio_query.refinery_upstream_queue_overflow_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
@@ -359,7 +359,7 @@ resource "honeycombio_trigger" "refinery_incoming_traffic_stopped" {
   query_id    = honeycombio_query.refinery_incoming_traffic_stopped_query.id
 
   recipient {
-    id = var.create_slack_recipient ? honeycombio_slack_recipient.alerts[0].id : var.existing_slack_recipient_id
+    id = honeycombio_slack_recipient.alerts.id
   }
 
   threshold {
