@@ -1,3 +1,13 @@
+# search for a Slack recipient with channel name var.slack_recipient_channel
+data "honeycombio_recipient" "slack" {
+  type = "slack"
+
+  detail_filter {
+    name  = "channel"
+    value = var.slack_recipient_channel
+  }
+}
+
 ################################################################################
 # First trigger: refinery_dropped_incoming_events
 ################################################################################
@@ -27,6 +37,7 @@ data "honeycombio_query_specification" "refinery_dropped_incoming_events_query_s
   }
 
   time_range = 900
+
 }
 
 resource "honeycombio_trigger" "refinery_dropped_incoming_events" {
@@ -39,7 +50,7 @@ resource "honeycombio_trigger" "refinery_dropped_incoming_events" {
   query_id    = honeycombio_query.refinery_dropped_incoming_events_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {
@@ -96,7 +107,7 @@ resource "honeycombio_trigger" "refinery_stress_relief_activated" {
   query_id    = honeycombio_query.refinery_stress_relief_activated_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {
@@ -153,7 +164,7 @@ resource "honeycombio_trigger" "refinery_dropped_peer_events" {
   query_id    = honeycombio_query.refinery_dropped_peer_events_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {
@@ -163,60 +174,8 @@ resource "honeycombio_trigger" "refinery_dropped_peer_events" {
   }
 }
 
-
 ################################################################################
-# Fourth trigger: refinery_cache_buffer_overrun
-################################################################################
-resource "honeycombio_query" "refinery_cache_buffer_overrun_query" {
-  dataset    = var.refinery_metrics_dataset
-  query_json = data.honeycombio_query_specification.refinery_cache_buffer_overrun_query_spec.json
-  depends_on = [null_resource.create_metrics_columns]
-}
-
-data "honeycombio_query_specification" "refinery_cache_buffer_overrun_query_spec" {
-  calculation {
-    op     = "SUM"
-    column = "collect_cache_buffer_overrun"
-  }
-
-  filter {
-    column = "collect_cache_buffer_overrun"
-    op     = "exists"
-  }
-
-  breakdowns = ["hostname"]
-
-  order {
-    op     = "SUM"
-    column = "collect_cache_buffer_overrun"
-    order  = "descending"
-  }
-
-  time_range = 900
-}
-
-resource "honeycombio_trigger" "refinery_cache_buffer_overrun" {
-  alert_type  = "on_change"
-  dataset     = var.refinery_metrics_dataset
-  description = "Indicates buffer and/or memory capacity under-sizing on the Refinery cluster for the given traffic load, resulting in significant (> 1000) events dropped.\nFor more info, see: https://docs.honeycomb.io/manage-data-volume/refinery/scale-and-troubleshoot/#scaling-the-ram"
-  disabled    = "false"
-  frequency   = "900"
-  name        = "Refinery Cache Buffer Overrun"
-  query_id    = honeycombio_query.refinery_cache_buffer_overrun_query.id
-
-  recipient {
-    id = honeycombio_slack_recipient.alerts.id
-  }
-
-  threshold {
-    exceeded_limit = "4"
-    op             = ">"
-    value          = "1000"
-  }
-}
-
-################################################################################
-# Fifth query: refinery_peer_queue_buffer_overflow
+# Fourth query: refinery_peer_queue_buffer_overflow
 ################################################################################
 resource "honeycombio_query" "refinery_peer_queue_buffer_overflow_query" {
   dataset    = var.refinery_metrics_dataset
@@ -256,7 +215,7 @@ resource "honeycombio_trigger" "refinery_peer_queue_buffer_overflow" {
   query_id    = honeycombio_query.refinery_peer_queue_buffer_overflow_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {
@@ -307,7 +266,7 @@ resource "honeycombio_trigger" "refinery_upstream_queue_overflow" {
   query_id    = honeycombio_query.refinery_upstream_queue_overflow_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {
@@ -320,7 +279,7 @@ resource "honeycombio_trigger" "refinery_upstream_queue_overflow" {
 
 
 ################################################################################
-# Fifth query: refinery_incoming_traffic_stopped
+# Sixth query: refinery_incoming_traffic_stopped
 ################################################################################
 resource "honeycombio_query" "refinery_incoming_traffic_stopped_query" {
   dataset    = var.refinery_metrics_dataset
@@ -359,7 +318,7 @@ resource "honeycombio_trigger" "refinery_incoming_traffic_stopped" {
   query_id    = honeycombio_query.refinery_incoming_traffic_stopped_query.id
 
   recipient {
-    id = honeycombio_slack_recipient.alerts.id
+    id = data.honeycombio_recipient.slack.id
   }
 
   threshold {

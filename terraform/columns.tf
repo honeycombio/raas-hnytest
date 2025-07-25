@@ -4,7 +4,6 @@ locals {
     "hostname"                         = "terraform"
     "incoming_router_dropped"          = 0.0
     "stress_relief_activated"          = 0.0
-    "collect_cache_buffer_overrun"     = 0.0
     "libhoney_peer_queue_overflow"     = 0.0
     "libhoney_upstream_queue_overflow" = 0.0
     "incoming_router_span"             = 0.0
