@@ -6,9 +6,8 @@ on:
     branches:
       - main
     paths:
-      - refinery-secrets.yaml
       - refinery-values.yaml
-      - kubeletstats-daemonset.yaml
+      - .github/workflows/refinery-deploy.yaml
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -93,5 +92,9 @@ jobs:
               --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
               --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
               --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
+              --set config.LegacyMetrics.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
+              --set config.OTelMetrics.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
               --wait \
               --debug
+              
