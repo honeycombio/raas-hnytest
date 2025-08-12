@@ -14,8 +14,8 @@ customvals:
   - &spanLimit 1_000
   - &sendDelay 10s
   - &traceTimeout 60s
-# Sizing example for an r7g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
-# - &memory 120Gi
+# Sizing example for an r8g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
+# - &memory 115Gi
 # - &cpu 14
 # - &incomingQueueSize  3_000_000
 # - &peerQueueSize      3_000_000
