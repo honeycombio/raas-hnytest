@@ -48,7 +48,7 @@ rules:
           - Name: Keep Type 2 GRPC Status Codes
             SampleRate: 1
             Conditions:
-              - Field: status_code
+              - Field: rpc.grpc.status_code
                 Operator: ">="
                 Value: 2
                 Datatype: int
@@ -97,7 +97,7 @@ rules:
                   - http.method
           - Name: Dynamically Sample Non-HTTP Request
             Conditions:
-              - Field: status_code
+              - Field: rpc.grpc.status_code
                 Operator: "<"
                 Value: 2
                 Datatype: int
