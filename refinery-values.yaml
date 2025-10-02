@@ -9,18 +9,17 @@ customvals:
   - &cpu 1250m # lowered to allow more memory for daemonsets and other pods monitoring the nodes
   - &incomingQueueSize 150_000
   - &peerQueueSize 150_000
-  - &upstreamBufferSize 50_000
-  - &peerBufferSize 100_000
   - &spanLimit 1_000
   - &sendDelay 10s
   - &traceTimeout 60s
-# Sizing example for an r8g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
-# - &memory 115Gi
+  - &imageRepository public.ecr.aws/honeycombio/refinery
+# alternatively, you can also use ghcr.io/honeycombio/refinery/refinery
+  - &imageTag 3.0.0
+# Sizing example for an r7g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
+# - &memory 120Gi
 # - &cpu 14
 # - &incomingQueueSize  3_000_000
 # - &peerQueueSize      3_000_000
-# - &upstreamBufferSize 1_000_000
-# - &peerBufferSize     1_000_000
 # - &spanLimit 32_000
 # - &sendDelay 10s
 # - &traceTimeout 60s
@@ -153,9 +152,6 @@ config:
     MaxMemoryPercentage: 75
     IncomingQueueSize: *incomingQueueSize
     PeerQueueSize: *peerQueueSize
-  BufferSizes:
-    UpstreamBufferSize: *upstreamBufferSize
-    PeerBufferSize: *peerBufferSize
   Debugging:
     AdditionalErrorFields:
       - service.name
@@ -168,9 +164,6 @@ config:
   HoneycombLogger:
     Dataset: refinery-logs
     SamplerEnabled: false
-  LegacyMetrics:
-    Dataset: refinery-metrics
-    Enabled: true
   OTelMetrics:
     Dataset: refinery-otel-metrics
     Enabled: true
@@ -185,6 +178,22 @@ config:
     SendDelay: *sendDelay
     TraceTimeout: *traceTimeout
     SpanLimit: *spanLimit
+
+image:
+  repository: *imageRepository
+  tag: *imageTag
+  pullPolicy: IfNotPresent
+
+deployMarker:
+  enabled: true
+  honeycombAPI: $(HONEYCOMB_API_ENDPOINT)
+  honeycombDataset: "refinery-metrics"
+  environment:
+    - name: REFINERY_HONEYCOMB_DEPLOY_MARKER_API_KEY
+      valueFrom:
+        secretKeyRef:
+          key: refinery-metrics-api-key
+          name: raas-secrets
 
 environment:
   - name: REFINERY_HONEYCOMB_API_KEY
