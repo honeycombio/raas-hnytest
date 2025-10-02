@@ -1,6 +1,6 @@
 variable "refinery_metrics_dataset" {
   type    = string
-  default = "refinery-metrics"
+  default = "refinery-otel-metrics"
 }
 
 variable "slack_recipient_channel" {
