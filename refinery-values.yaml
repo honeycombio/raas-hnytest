@@ -184,17 +184,6 @@ image:
   tag: *imageTag
   pullPolicy: IfNotPresent
 
-deployMarker:
-  enabled: true
-  honeycombAPI: $(HONEYCOMB_API_ENDPOINT)
-  honeycombDataset: "refinery-metrics"
-  environment:
-    - name: REFINERY_HONEYCOMB_DEPLOY_MARKER_API_KEY
-      valueFrom:
-        secretKeyRef:
-          key: refinery-metrics-api-key
-          name: raas-secrets
-
 environment:
   - name: REFINERY_HONEYCOMB_API_KEY
     valueFrom:

@@ -93,7 +93,6 @@ jobs:
               --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
               --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
               --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
-              --set config.LegacyMetrics.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
               --set config.OTelMetrics.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
               --wait \
               --debug
