@@ -9,11 +9,13 @@ This repository demonstrates best practices for deploying Honeycomb Refinery clu
 ## IMPORTANT: Do Not Run Commands Directly
 
 **NEVER run the following commands directly:**
+
 - `helm` commands (e.g., `helm upgrade`, `helm install`)
 - `terraform` commands (e.g., `terraform apply`, `terraform plan`)
 - `kubectl` commands (e.g., `kubectl apply`, `kubectl create`)
 
 All deployments and infrastructure changes are managed through GitHub Actions workflows. If the user asks you to deploy or make changes:
+
 1. Help them edit the relevant configuration files (values YAML files, Terraform files)
 2. Commit and push changes to the `main` branch
 3. Let GitHub Actions handle the deployment
@@ -25,12 +27,14 @@ The only exception is if the user explicitly asks you to run commands locally fo
 ### Components
 
 1. **Refinery Deployment** (`refinery-values.yaml`)
+
    - Helm values for deploying Refinery to AWS EKS clusters
    - Configures AWS Load Balancer Controller and External DNS Controller via Ingress annotations
    - Includes sampling rules configuration for trace management
    - Currently set up for m7g.large instances (2 vCPU, 8 GiB memory) with commented examples for r7g.4xlarge
 
 2. **Kubernetes Monitoring**
+
    - `k8sevents-values.yaml`: OpenTelemetry collector for Kubernetes Events API monitoring
    - `kubeletstats-values.yaml`: OpenTelemetry collector for kubelet metrics (pods, containers, nodes)
    - Both collectors are scoped to specific namespaces/nodegroups and send data to Honeycomb
@@ -52,6 +56,7 @@ The repository supports both US (us-east-1) and EU (eu-west-1) deployments. GitH
 ### Helm Deployments
 
 **Deploy Refinery:**
+
 ```bash
 NAMESPACE='your-namespace'
 helm repo add honeycomb https://honeycombio.github.io/helm-charts
@@ -60,6 +65,7 @@ helm upgrade -n ${NAMESPACE} --install refinery honeycomb/refinery -f refinery-v
 ```
 
 **Deploy Kubernetes Monitoring:**
+
 ```bash
 NAMESPACE='your-namespace'
 helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
@@ -81,11 +87,13 @@ terraform apply
 ```
 
 **Required environment variables:**
+
 - `HONEYCOMB_API_KEY`: Configuration API key for Honeycomb
 - `HONEYCOMB_API_ENDPOINT`: Either `https://api.honeycomb.io` or `https://api.eu1.honeycomb.io`
 - `KUBE_NAMESPACE`: Kubernetes namespace for state backend
 
 **Terraform Variables:**
+
 - `refinery_metrics_dataset`: Dataset name (default: "refinery-otel-metrics")
 - `slack_recipient_channel`: Slack channel for alerts (default: "#collab-hosted-refinery-for-pocs")
 - `create_slack_recipient`: Whether to create Slack recipient (default: false)
@@ -107,16 +115,19 @@ kubectl create secret generic raas-secrets \
 All workflows skip the first run (when creating from template) via `if: github.run_number != 1`.
 
 ### `.github/workflows/refinery-deploy.yaml`
+
 - Triggers: Manual dispatch or push to `main` (when `refinery-values.yaml` or the workflow file changes)
 - Deploys Refinery to EKS using region-specific secrets (US or EU)
 - Automatically configures Ingress with ACM certificates and DNS names from secrets
 - Sets Honeycomb API endpoints based on region
 
 ### `.github/workflows/k8s-monitoring-deploy.yaml`
+
 - Deploys OpenTelemetry collectors for Kubernetes monitoring
 - Region-aware (US/EU)
 
 ### `.github/workflows/tf-hny-triggers.yaml`
+
 - Triggers: Manual dispatch or push to `main` (when `terraform/**.tf` changes)
 - Runs Terraform to create/update Honeycomb triggers
 - Uses Kubernetes backend for state storage
@@ -124,16 +135,19 @@ All workflows skip the first run (when creating from template) via `if: github.r
 ## Key Configuration Points
 
 ### Refinery Values (`refinery-values.yaml`)
+
 - **Ingress annotations**: AWS-specific (ALB Controller, External DNS) - modify for other K8s providers
 - **nodeSelector**: Set to `customer: hnytest` - update for your environment or remove if not using dedicated nodes
 - **Sampling rules**: Configured in `rules` section - keep errors/slow requests, drop healthchecks, dynamically sample normal traffic
 - **Resource sizing**: Customizable via YAML anchors at top of file (`&memory`, `&cpu`, queue sizes, etc.)
 
 ### Monitoring Values
+
 - **k8sevents-values.yaml**: Update `namespaces` array in `k8sobjects.objects[0]` to match your deployment namespace
 - **kubeletstats-values.yaml**: Update `nodeSelector` to match your Refinery nodes
 
 ### Terraform
+
 - **columns.tf**: Pre-creates Honeycomb columns via API call before creating triggers (ensures columns exist)
 - **trigger.tf**: Defines 4 triggers for Refinery health monitoring
 - **recipients.tf**: Searches for Slack recipient (unused but present)
@@ -143,12 +157,14 @@ All workflows skip the first run (when creating from template) via `if: github.r
 See `variables.md` for complete documentation.
 
 **Variables:**
+
 - `AWS_REGION`: us-east-1 or eu-west-1
 - `CLUSTER_NAME`: EKS cluster name
 - `HONEYCOMB_API_ENDPOINT`: Region-specific API endpoint
 - `K8S_NAMESPACE`: Target namespace
 
 **Secrets (region-specific):**
+
 - `AWS_GH_EKS_ROLE` / `AWS_GH_EKS_ROLE_EU`: IAM role for EKS access
 - `ACM_ARN` / `ACM_ARN_EU`: AWS Certificate Manager ARN
 - `DNS_NAME` / `DNS_NAME_EU`: Route53 DNS name
