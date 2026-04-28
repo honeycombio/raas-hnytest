@@ -13,8 +13,8 @@ customvals:
   - &sendDelay 10s
   - &traceTimeout 60s
   - &imageRepository public.ecr.aws/honeycombio/refinery
-# alternatively, you can also use ghcr.io/honeycombio/refinery/refinery
-  - &imageTag 3.1.0
+  # alternatively, you can also use ghcr.io/honeycombio/refinery/refinery
+  - &imageTag 3.2.0
 # Sizing example for an r7g.4xlarge (16 vCPU, 128 GiB memory) EC2 instance
 # - &memory 120Gi
 # - &cpu 14
@@ -138,9 +138,20 @@ resources:
 nodeSelector:
   customer: *refineryCluster
 
+tolerations:
+  - key: customer
+    operator: Equal
+    value: *refineryCluster
+    effect: NoSchedule
+
 redis:
   nodeSelector:
     customer: *refineryCluster
+  tolerations:
+    - key: customer
+      operator: Equal
+      value: *refineryCluster
+      effect: NoSchedule
 
 ###############################################################################
 ### Config: Refinery Application Config - Affects Clustering and Monitoring ###
@@ -223,6 +234,7 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.drop_invalid_header_fields.enabled=true
+    alb.ingress.kubernetes.io/tags: customer=raas-poc-lb
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     external-dns.alpha.kubernetes.io/hostname: _replaceme_
     kubernetes.io/ingress.class: alb
@@ -250,6 +262,7 @@ grpcIngress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/load-balancer-attributes: routing.http.drop_invalid_header_fields.enabled=true
+    alb.ingress.kubernetes.io/tags: customer=raas-poc-lb
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
     external-dns.alpha.kubernetes.io/hostname: _replaceme_
     kubernetes.io/ingress.class: alb
