@@ -5,6 +5,12 @@ mode: deployment
 nodeSelector:
   customer: hnytest
 
+tolerations:
+  - key: customer
+    operator: Equal
+    value: hnytest
+    effect: NoSchedule
+
 service:
   enabled: true
 
