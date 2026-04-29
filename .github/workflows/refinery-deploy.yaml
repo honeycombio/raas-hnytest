@@ -45,7 +45,7 @@ jobs:
             acm_arn_secret: ACM_ARN_US2
             dns_name_var: DNS_NAME_US2
           - region: us-west-2
-            cluster: raas-us2
+            cluster: raas-us4
             customer_api_endpoint: https://api.honeycomb.io
             eks_role_secret: AWS_GH_EKS_ROLE_US4
             acm_arn_secret: ACM_ARN_US4
