@@ -10,9 +10,7 @@ on:
       - .github/workflows/refinery-deploy.yaml
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
-  HONEYCOMB_API_ENDPOINT: ${{ vars.HONEYCOMB_API_ENDPOINT }}
+  HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT: ${{ vars.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}
 permissions:
   id-token: write # This is required for requesting the JWT
 
@@ -24,43 +22,54 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - region: us-east-1
+            cluster: raas-us1
+            customer_api_endpoint: https://api.honeycomb.io
+            eks_role_secret: AWS_GH_EKS_ROLE_US1
+            acm_arn_secret: ACM_ARN_US1
+            dns_name_var: DNS_NAME_US1
+          - region: eu-west-1
+            cluster: raas-eu1
+            customer_api_endpoint: https://api.eu1.honeycomb.io
+            eks_role_secret: AWS_GH_EKS_ROLE_EU1
+            acm_arn_secret: ACM_ARN_EU1
+            dns_name_var: DNS_NAME_EU1
+          - region: us-east-2
+            cluster: raas-us2
+            customer_api_endpoint: https://api.honeycomb.io
+            eks_role_secret: AWS_GH_EKS_ROLE_US2
+            acm_arn_secret: ACM_ARN_US2
+            dns_name_var: DNS_NAME_US2
+          - region: us-west-2
+            cluster: raas-us2
+            customer_api_endpoint: https://api.honeycomb.io
+            eks_role_secret: AWS_GH_EKS_ROLE_US4
+            acm_arn_secret: ACM_ARN_US4
+            dns_name_var: DNS_NAME_US4
+          - region: ap-south-1
+            cluster: raas-in1
+            customer_api_endpoint: https://api.honeycomb.io
+            eks_role_secret: AWS_GH_EKS_ROLE_IN1
+            acm_arn_secret: ACM_ARN_IN1
+            dns_name_var: DNS_NAME_IN1
     steps:
       - name: Clone the repository
         uses: actions/checkout@v4
 
-      - name: Validate and set secrets
-        run: |
-          if [[ "${{ env.AWS_REGION }}" == "eu-west-1" ]]; then
-            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE_EU }}" ]] || [[ -z "${{ secrets.ACM_ARN_EU }}" ]] || [[ -z "${{ secrets.DNS_NAME_EU }}" ]]; then
-              echo "Required EU secrets are not set"
-              exit 1
-            fi
-            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE_EU }}" >> $GITHUB_ENV
-            echo "SELECTED_ACM_ARN=${{ secrets.ACM_ARN_EU }}" >> $GITHUB_ENV
-            echo "SELECTED_DNS_NAME=${{ secrets.DNS_NAME_EU }}" >> $GITHUB_ENV
-          elif [[ "${{ env.AWS_REGION }}" == "us-east-1" ]]; then
-            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE }}" ]] || [[ -z "${{ secrets.ACM_ARN }}" ]] || [[ -z "${{ secrets.DNS_NAME }}" ]]; then
-              echo "Required US secrets are not set"
-              exit 1
-            fi
-            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE }}" >> $GITHUB_ENV
-            echo "SELECTED_ACM_ARN=${{ secrets.ACM_ARN }}" >> $GITHUB_ENV
-            echo "SELECTED_DNS_NAME=${{ secrets.DNS_NAME }}" >> $GITHUB_ENV
-          else
-            echo "Invalid AWS_REGION: ${{ env.AWS_REGION }}"
-            exit 1
-          fi
-
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.SELECTED_EKS_ROLE }}
+          role-to-assume: ${{ secrets[matrix.eks_role_secret] }}
           role-session-name: ci-run-${{ github.run_id }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
 
       - name: kubeconfig
         run: |
-          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}  --kubeconfig ./kubeconfig
+          aws eks update-kubeconfig --name ${{ matrix.cluster }} --region ${{ matrix.region }}  --kubeconfig ./kubeconfig
           echo 'KUBE_CONFIG_DATA<<EOF' >> $GITHUB_ENV
           echo $(cat ./kubeconfig | base64) >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
@@ -85,15 +94,14 @@ jobs:
               --install refinery \
               honeycomb/refinery \
               -f refinery-values.yaml \
-              --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
-              --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
-              --set ingress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
-              --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ env.SELECTED_ACM_ARN }}" \
-              --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ env.SELECTED_DNS_NAME }}" \
-              --set grpcIngress.hosts[0].host="${{ env.SELECTED_DNS_NAME }}" \
-              --set config.Network.HoneycombAPI="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
-              --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
-              --set config.OTelMetrics.APIHost="${{ env.HONEYCOMB_API_ENDPOINT }}" \
+              --set ingress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets[matrix.acm_arn_secret] }}" \
+              --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ vars[matrix.dns_name_var] }}" \
+              --set ingress.hosts[0].host="${{ vars[matrix.dns_name_var] }}" \
+              --set grpcIngress.annotations."alb\.ingress\.kubernetes\.io/certificate-arn"="${{ secrets[matrix.acm_arn_secret] }}" \
+              --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ vars[matrix.dns_name_var] }}" \
+              --set grpcIngress.hosts[0].host="${{ vars[matrix.dns_name_var] }}" \
+              --set config.Network.HoneycombAPI="${{ matrix.customer_api_endpoint }}:443" \
+              --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}" \
+              --set config.OTelMetrics.APIHost="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}" \
               --wait \
               --debug
-              

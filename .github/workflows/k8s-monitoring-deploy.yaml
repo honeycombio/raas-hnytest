@@ -8,11 +8,10 @@ on:
     paths:
       - k8sevents-values.yaml
       - kubeletstats-values.yaml
+      - .github/workflows/k8s-monitoring-deploy.yaml
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
-  HONEYCOMB_API_ENDPOINT: ${{ vars.HONEYCOMB_API_ENDPOINT }}
+  HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT: ${{ vars.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}
 permissions:
   id-token: write # This is required for requesting the JWT
 
@@ -24,39 +23,30 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - region: us-east-1
+            cluster: raas-us1
+            eks_role_secret: AWS_GH_EKS_ROLE
+          - region: eu-west-1
+            cluster: raas-eu1
+            eks_role_secret: AWS_GH_EKS_ROLE_EU
     steps:
       - name: Clone the repository
         uses: actions/checkout@v4
 
-      - name: Validate and set secrets
-        run: |
-          if [[ "${{ env.AWS_REGION }}" == "eu-west-1" ]]; then
-            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE_EU }}" ]] || [[ -z "${{ secrets.ACM_ARN_EU }}" ]] || [[ -z "${{ secrets.DNS_NAME_EU }}" ]]; then
-              echo "Required EU secrets are not set"
-              exit 1
-            fi
-            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE_EU }}" >> $GITHUB_ENV
-          elif [[ "${{ env.AWS_REGION }}" == "us-east-1" ]]; then
-            if [[ -z "${{ secrets.AWS_GH_EKS_ROLE }}" ]] || [[ -z "${{ secrets.ACM_ARN }}" ]] || [[ -z "${{ secrets.DNS_NAME }}" ]]; then
-              echo "Required US secrets are not set"
-              exit 1
-            fi
-            echo "SELECTED_EKS_ROLE=${{ secrets.AWS_GH_EKS_ROLE }}" >> $GITHUB_ENV
-          else
-            echo "Invalid AWS_REGION: ${{ env.AWS_REGION }}"
-            exit 1
-          fi
-
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.SELECTED_EKS_ROLE }}
+          role-to-assume: ${{ secrets[matrix.eks_role_secret] }}
           role-session-name: ci-run-${{ github.run_id }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
 
       - name: kubeconfig
         run: |
-          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}  --kubeconfig ./kubeconfig
+          aws eks update-kubeconfig --name ${{ matrix.cluster }} --region ${{ matrix.region }}  --kubeconfig ./kubeconfig
           echo 'KUBE_CONFIG_DATA<<EOF' >> $GITHUB_ENV
           echo $(cat ./kubeconfig | base64) >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
@@ -75,7 +65,7 @@ jobs:
               --install ${{ vars.K8S_NAMESPACE }}-otelcol-kubeletstats \
               open-telemetry/opentelemetry-collector \
               -f kubeletstats-values.yaml \
-              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}:443" \
               --wait \
               --debug
 
@@ -84,6 +74,6 @@ jobs:
               --install ${{ vars.K8S_NAMESPACE }}-otelcol-k8sevents \
               open-telemetry/opentelemetry-collector \
               -f k8sevents-values.yaml \
-              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_API_ENDPOINT }}:443" \
+              --set config.exporters.otlp.endpoint="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}:443" \
               --wait \
               --debug
