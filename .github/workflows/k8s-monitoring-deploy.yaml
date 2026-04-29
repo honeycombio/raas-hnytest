@@ -29,10 +29,10 @@ jobs:
         include:
           - region: us-east-1
             cluster: raas-us1
-            eks_role_secret: AWS_GH_EKS_ROLE
+            eks_role_secret: AWS_GH_EKS_ROLE_US1
           - region: eu-west-1
             cluster: raas-eu1
-            eks_role_secret: AWS_GH_EKS_ROLE_EU
+            eks_role_secret: AWS_GH_EKS_ROLE_EU1
     steps:
       - name: Clone the repository
         uses: actions/checkout@v4
