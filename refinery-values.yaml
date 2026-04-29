@@ -3,13 +3,13 @@
 #######################################################
 customvals:
   - &refineryCluster "hnytest"
-  - &replicaCount 1
+  - &replicaCount 2
   # Sizing example for an m7g.large (2 vCPU, 8 GiB memory) EC2 instance
-  - &memory 5Gi # lowered to allow more memory for daemonsets and other pods monitoring the nodes
-  - &cpu 1250m # lowered to allow more memory for daemonsets and other pods monitoring the nodes
+  - &memory 6Gi # lowered to allow more memory for daemonsets and other pods monitoring the nodes
+  - &cpu 1500m # lowered to allow more memory for daemonsets and other pods monitoring the nodes
   - &incomingQueueSize 150_000
   - &peerQueueSize 150_000
-  - &spanLimit 1_000
+  - &spanLimit 10_000
   - &sendDelay 10s
   - &traceTimeout 60s
   - &imageRepository public.ecr.aws/honeycombio/refinery
