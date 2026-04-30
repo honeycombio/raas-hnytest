@@ -109,7 +109,6 @@ jobs:
               --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}" \
               --set config.HoneycombLogger.AdditionalAttributes."aws\.region"="${{ matrix.region }}" \
               --set config.HoneycombLogger.AdditionalAttributes."k8s\.cluster\.name"="${{ matrix.cluster }}" \
-              --set config.OTelMetrics.APIHost="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}" \
               --set redis.existingHost="${{ secrets[matrix.cache_endpoint_secret] }}" \
               --set config.RedisPeerManagement.Host="${{ secrets[matrix.cache_endpoint_secret] }}" \
               --wait \
