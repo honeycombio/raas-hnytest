@@ -3,6 +3,7 @@
 #######################################################
 customvals:
   - &refineryCluster "hnytest"
+  - &environment "poc"
   - &replicaCount 2
   # Sizing example for an m7g.large (2 vCPU, 8 GiB memory) EC2 instance
   - &memory 6Gi # lowered to allow more memory for daemonsets and other pods monitoring the nodes
@@ -145,6 +146,7 @@ tolerations:
     effect: NoSchedule
 
 redis:
+  enabled: false
   nodeSelector:
     customer: *refineryCluster
   tolerations:
@@ -175,9 +177,20 @@ config:
   HoneycombLogger:
     Dataset: refinery-logs
     SamplerEnabled: false
+    AdditionalAttributes:
+      aws.region: a
+      k8s.cluster.name: a
+      customer: *refineryCluster
+      environment: *environment
   OTelMetrics:
+    APIHost: http://${OTEL_COLLECTOR_NAME}:4321
     Dataset: refinery-otel-metrics
     Enabled: true
+  PeerManagement:
+    Type: redis
+    IdentifierInterfaceName: eth0
+  RedisPeerManagement:
+    UseTLS: true
   RefineryTelemetry:
     AddRuleReasonToTrace: true
     AddCountsToRoot: true
@@ -210,8 +223,10 @@ environment:
     valueFrom:
       fieldRef:
         fieldPath: metadata.name
-  - name: OTEL_RESOURCE_ATTRIBUTES
-    value: "hostname=$(POD_NAME)"
+  - name: OTEL_COLLECTOR_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
 
 ###################################################################
 ### Ingress Configurations for AWS ALB -> Kubernetes Networking ###
