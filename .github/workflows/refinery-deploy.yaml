@@ -9,8 +9,6 @@ on:
       - refinery-values.yaml
       - .github/workflows/refinery-deploy.yaml
 
-env:
-  HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT: ${{ vars.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}
 permissions:
   id-token: write # This is required for requesting the JWT
 
@@ -106,7 +104,6 @@ jobs:
               --set grpcIngress.annotations."external-dns\.alpha\.kubernetes\.io/hostname"="${{ vars[matrix.dns_name_var] }}" \
               --set grpcIngress.hosts[0].host="${{ vars[matrix.dns_name_var] }}" \
               --set config.Network.HoneycombAPI="${{ matrix.customer_api_endpoint }}:443" \
-              --set config.HoneycombLogger.APIHost="${{ env.HONEYCOMB_REFINERY_TELEMETRY_API_ENDPOINT }}" \
               --set config.HoneycombLogger.AdditionalAttributes."aws\.region"="${{ matrix.region }}" \
               --set config.HoneycombLogger.AdditionalAttributes."k8s\.cluster\.name"="${{ matrix.cluster }}" \
               --set redis.existingHost="${{ secrets[matrix.cache_endpoint_secret] }}" \
