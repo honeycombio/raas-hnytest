@@ -188,6 +188,7 @@ config:
       customer: *refineryCluster
       environment: *environment
   OTelMetrics:
+    # Port 4321 is used for metrics to go to the POC environment in Honeycomb. 4320 is for Prod.
     APIHost: http://${OTEL_COLLECTOR_NAME}:4321
     Dataset: refinery-otel-metrics
     Enabled: true
