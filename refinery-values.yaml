@@ -124,9 +124,14 @@ rules:
 ###  - set node affinity         ###
 ####################################
 autoscaling:
-  enabled: false
-
-replicaCount: *replicaCount
+  enabled: true
+  minReplicas: *replicaCount
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 50
+  targetMemoryUtilizationPercentage: 50
+  behavior:
+    scaleDown:
+      selectPolicy: Disabled
 
 resources:
   limits:
